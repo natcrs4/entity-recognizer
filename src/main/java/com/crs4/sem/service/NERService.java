@@ -5,8 +5,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.List;
 
 import org.apache.lucene.analysis.Tokenizer;
@@ -96,33 +98,42 @@ public class NERService {
 		List<Term> tagged=new ArrayList<Term>();
 		List<Term> terms=new ArrayList<Term>();
 		CompoundTaggedTerm compound=null;
+		 Deque<CompoundTaggedTerm> stack = new ArrayDeque<CompoundTaggedTerm>();
 		for(Term x:taggedterms){
 			if(x.tag().startsWith("B-")) {
-			
-				terms= new ArrayList<Term>();
-				
+				terms= new ArrayList<Term>();				
 				compound= new CompoundTaggedTerm(terms,new Tag(x.tag().replaceAll("B-", "")));
-				tagged.add(compound);
 				SimpleTerm simple = new SimpleTerm(x.content());
 				terms.add(simple);
+				stack.add(compound);
+				
 				
 			}
-			else
-			if(x.tag().startsWith("I-")) {
-				SimpleTerm simple = new SimpleTerm(x.content());
-				if(terms.size()==0){
-					compound= new CompoundTaggedTerm(terms,new Tag(x.tag().replaceAll("B-", "")));
-					tagged.add(compound);
-				}
-				terms.add(simple);
-				
-			}
-			else
-				 terms=new ArrayList<Term>();
 			
+			if(x.tag().startsWith("I-")) {
+				if(!stack.isEmpty()) {
+				CompoundTaggedTerm current=stack.getFirst();
+				SimpleTerm simple = new SimpleTerm(x.content());
+				terms=current.getTerms();
+				terms.add(simple);
+				}
+			}
+			if(!x.tag().startsWith("I-")&&!x.tag().startsWith("B-"))
+			{
+				if(!stack.isEmpty()) {
+					CompoundTaggedTerm aux = stack.remove();
+					tagged.add(aux);
+				}
+			}
+			
+		}
+		if(!stack.isEmpty()) {
+			CompoundTaggedTerm aux = stack.remove();
+			tagged.add(aux);
 		}
 		return tagged;
 	}
+    
     
 	public List<Term> listOfPerson(List<Term> taggedterms){
 		List<Term> tagged=new ArrayList<Term>();

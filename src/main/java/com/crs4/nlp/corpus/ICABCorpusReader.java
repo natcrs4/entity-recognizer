@@ -9,14 +9,18 @@ import com.google.common.base.Splitter;
 
 import eu.danieldk.nlp.jitar.corpus.CorpusReader;
 import eu.danieldk.nlp.jitar.corpus.TaggedToken;
+import lombok.extern.log4j.Log4j;
 
 public class ICABCorpusReader implements CorpusReader {
+	
     private static final Splitter SPACE_SPLITTER = Splitter.on(' ').trimResults().omitEmptyStrings();
 
     private final BufferedReader reader;
 
     boolean decapitalizeFirstWord;
 
+    
+    public int num_sentence=0;
     /**
      * Construct a CONLL corpus reader, use default start/end markers.
      *
@@ -46,7 +50,7 @@ public class ICABCorpusReader implements CorpusReader {
         List<TaggedToken> sentence = new ArrayList<>();
 
         String line;
-       
+       num_sentence++;
         while ((line = reader.readLine()) != null) {
         	 if(line.startsWith("#")||line.startsWith("<")) return sentence;
             List<String> parts = SPACE_SPLITTER.splitToList(line);

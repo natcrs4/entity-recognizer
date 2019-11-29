@@ -19,12 +19,13 @@ public class ICABCorpusReaderTest {
 	 public void testCorpusReader() throws IOException{
 		         String nomeFile="src/test/resources/I-CAB_All/NER-09/I-CAB-evalita09-NER-training.iob2";
 		         BufferedReader reader= new BufferedReader( new FileReader(nomeFile));
-		        CorpusReader corpusReader = new ICABCorpusReader(reader, false);
+		         ICABCorpusReader corpusReader = new ICABCorpusReader(reader, false);
 		        FrequenciesCollector frequenciesCollector = new FrequenciesCollector();
 		        frequenciesCollector.process(corpusReader);
 		         Model model = frequenciesCollector.model();
 		         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("src/test/resources/icab.par"));
 		           oos.writeObject(model);
+		           System.out.println(" num sencence "+ corpusReader.num_sentence);
 	}
 	
 	@Test
@@ -41,5 +42,14 @@ public class ICABCorpusReaderTest {
 		
 		CrossValidation.main(args);
 	}
+	
+	@Test
+	public void crossValidation2() throws IOException{
+		String [] args={"icab","src/test/resources/I-CAB_All/NER-09/icab.iob2"};
+		
+		CrossValidation.main(args);
+		
+	}
+
 
 }
